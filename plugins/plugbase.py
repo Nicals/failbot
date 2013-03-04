@@ -108,6 +108,13 @@ class Plugin():
             sleep(1)
 
 
+    def respond(self, serv, ev, helper, msg):
+        """
+        """
+        target = helper['chan'] if ev.eventtype() == 'pubmsg' else helper['author']
+        serv.privmsg(target, msg)
+
+
 
 class PluginError(Exception):
     """

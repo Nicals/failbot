@@ -48,6 +48,6 @@ enabled_plugins = [
 # custom settings for plugins.
 plugin_settings = {
     'admin':{
-        'users':('Nicals')
+        'users':['Nicals']
     },
 }

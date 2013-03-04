@@ -82,13 +82,13 @@ class admin(Plugin):
             try:
                 ret = self.cmd[helper['cmd']]['func'](serv, ev, helper, *helper['args'])
                 if ret == True:
-                    serv.privmsg(helper['chan'], helper['author'] + ': done')
+                    self.respond(serv, ev, helper,  helper['author'] + ': done')
                 elif ret == False:
-                    serv.privmsg(helper['chan'], helper['author'] + ': something failed')
+                    self.respond(serv, ev, helper,  helper['author'] + ': something failed')
             except TypeError:
-                serv.privmsg(helper['chan'], helper['author'] + ': something failed, wrong args')
+                self.respond(serv, ev, helper,  helper['author'] + ': something failed, wrong args')
             except:
-                serv.privmsg(helper['chan'], helper['author'] + ': something failed, unknown')
+                self.respond(serv, ev, helper,  helper['author'] + ': something failed, unknown')
 
         
     def enable(self, serv, ev, helper, plug_name):
@@ -129,11 +129,11 @@ class admin(Plugin):
         if what in ('all', 'enabled', 'disabled'):
             for p in self.bot.list_plugins():
                 if what == 'all':
-                    serv.privmsg(helper['chan'], p[0] + (' [enabled]' if p[1] else ' [disabled]'))
+                    self.respond(serv, ev, helper,  p[0] + (' [enabled]' if p[1] else ' [disabled]'))
                 elif what == 'enabled' and p[1]:
-                    serv.privmsg(helper['chan'], p[0])
+                    self.respond(serv, ev, helper, p[0])
                 elif what == 'disabled' and not p[1]:
-                    serv.privmsg(helper['chan'], p[0])
+                    self.respond(serv, ev, helper, p[0])
             return None
         else:
             return False
@@ -146,13 +146,14 @@ class admin(Plugin):
     def get(self, serv, ev, helper, option):
         val = self.bot.get(option.replace('_', ' '))
         if not val:
-            serv.privmsg(helper['chan'], 'None')
+            self.respond(serv, ev, helper, 'None')
         else:
-            serv.privmsg(helper['chan'], val)
+            self.respond(serv, ev, helper, val)
         return None
 
 
-    def quit(self, serv, ev):
+    def quit(self, serv, ev, helper):
         self.bot.close()
+        return None
 
 

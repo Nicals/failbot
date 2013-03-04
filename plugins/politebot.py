@@ -42,7 +42,8 @@ class politebot(Plugin):
             return True
 
     def get_stats(self, serv, ev, helper):
-        serv.privmsg(helper['chan'], str(self.foo))
+        # serv.privmsg(helper['chan'], str(self.foo))
+        self.respond(serv, ev, helper, str(self.foo))
         return None
         
 
