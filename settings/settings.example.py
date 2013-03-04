@@ -19,6 +19,8 @@ settings = {
     # nickname of the bot
     'nickname':'failbot',
     'realname':'failbot',
+    # password to "/msg nickserv identify " cmd
+    'password':None,
     # how long the bot should wait before trying to reconnect
     'reconnect interval':60,
     # which prefix to use to send a command to Mr Bot ?

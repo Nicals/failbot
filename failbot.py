@@ -247,6 +247,8 @@ class FailBot(ircbot.SingleServerIRCBot):
         """
         On welcome, join channels sets in settings.
         """
+        if self.settings['password']:
+            serv.privmsg('nickserv', 'identify ' + self.settings['password'])
         for c in self.settings['channels']:
             channel = c[0] + ' ' + c[1] if c[1] else ''
             Log.log(Log.log_lvl.INFO, 'joining ' + channel)
