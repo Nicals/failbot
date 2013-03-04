@@ -78,7 +78,7 @@ class admin(Plugin):
     def on_cmd(self, serv, ev, helper):
         """
         """
-        if helper['author'] and self.allowed_users and helper['cmd'] in self.cmd:
+        if helper['author'] in self.allowed_users and helper['cmd'] in self.cmd:
             try:
                 ret = self.cmd[helper['cmd']]['func'](serv, ev, helper, *helper['args'])
                 if ret == True:
