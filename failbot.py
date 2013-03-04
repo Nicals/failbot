@@ -82,12 +82,12 @@ class FailBot(ircbot.SingleServerIRCBot):
         try:
             # don't even try to import if the plugin is already loaded
             if not 'plugins.' + plug_name in modules:
-                exec import_string
-                self.plugins[plug_name] = getattr(modules['plugins.'+plug_name], plug_name)
+                mod = __import__('plugins.' + plug_name, fromlist=[plug_name])
+                self.plugins[plug_name] = getattr(mod, plug_name)
                 Log.log(Log.log_lvl.INFO, 'plugin ' + plug_name + ' loaded')
                 return True
             else:
-                Log.log(Log.log_lvl.WARNING, 'failed to load plugin ' + plug_name, '. seems already loaded.')
+                Log.log(Log.log_lvl.WARNING, 'failed to load plugin ' + plug_name + '. seems already loaded.')
                 return False
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Failed to load plugin ' + plug_name + '. Catches exception ' + str(e))
