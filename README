@@ -1,0 +1,61 @@
+
+failbot plugins
+===============
+
+A failbot plugin command string is composed of 3 elements : a command
+prefix string indicationg the message is a command, the name of a command
+and several optionals args.
+
+The default command prefix is '!', but it can be changed in the settings
+file by assigning a string to the 'cmd prefix' key of settings dictionary.
+
+Failbot plugins exists in several states. They can be loaded or not. A loaded
+plugin is a plugin that is imported by python.
+
+An loaded plugin can be enabled or disable. The name of those states are
+quite obvious about their meanings.
+
+
+failbot admin plugin
+====================
+
+The failbot admin plugin is intended to manage failbot itself and all its
+plugins.
+
+The available commands are : enable, disable, reset, load, unload, reload,
+list, set, get and quit.
+
+Managing failbot is fairly simple. The 'set' command can change on the fly
+failbot current settings. The 'get' command prints the current value of a
+given setting.
+  
+  < user > !get verbose
+  < failbot > 4
+  < user > !set verbose 2
+  < failbot > user: done
+
+Shuting down failbot is done with 'quit'.
+
+The 'list' commands return the status of current loaded plugins. By default,
+'list' gives all loaded plugins. An optional argument can be added to filter
+plugins to print : 'enabled' or 'disabled'.
+
+To enable or disable a plugin, 'enable' or 'disable' are the command to use
+with the name of the plugin as argument.
+
+A plugin may be reset to its initial state with the 'reset' command and the
+plugin name as argument. Internaly, this call the init() function of the
+plugin, so be sure to init your custom plugins in this function rather than
+in the constructor.
+
+The 'load' function is used to load a plugin. The first argument is the plugin's
+name. By default, it came in a disabled state. This can be change by passing
+'enable' or 'disable' as argument.
+
+To unload a plugin, use 'unload' with the name of the plugin.
+
+If you want to reload a plugin, you can use the above command or the 'reload'
+one whiche will call 'unload' and 'load'. The first argument is the plugin
+name, the second is the 'enable' or 'disable' argument for 'load'. This
+command if you have change a plugin's code and want to apply the results.
+'load' and 'reload' command can't be applied on failbot itself.
