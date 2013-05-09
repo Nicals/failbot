@@ -71,7 +71,10 @@ class FailBot(ircbot.SingleServerIRCBot):
 
     def close(self):
         """
+        Shutdown failbot
         """
+        for p in self.enabled_plugins:
+            p.on_shutdown()
         self.die()
 
 

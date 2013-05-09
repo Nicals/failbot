@@ -91,6 +91,12 @@ class Plugin():
         if helper['cmd'] in self.cmd:
             self.cmd[helper['cmd']]['func'](serv, ev, helper, *helper['args'])
 
+    def on_shutdown(self):
+        """
+        Define what a plugin may do when the bot shuts down
+        """
+        pass
+
 
     def help(self, serv, ev, helper, plug_name='all'):
         """
