@@ -14,13 +14,19 @@ class politebot(Plugin):
             'polite_reload':{
                 'usage':'polite_reload',
                 'help':'reload compliment file',
-                'func':self.load_compliment
+                'func':self.load_compliment,
             },
             'polite_stat':{
                 'usage':'polite_stat',
                 'help':'get an idea of polite state',
-                'func':self.get_stats
-            }
+                'func':self.get_stats,
+            },
+            'polite_add':{
+                'usage':'polite_add <sentence>',
+                'help':'add some polite sentences',
+                'func':self.add_sentence,
+            },
+
         }
 
         Plugin.__init__(self, bot, settings, True)
@@ -44,6 +50,19 @@ class politebot(Plugin):
         # serv.privmsg(helper['chan'], str(self.foo))
         self.respond(serv, ev, helper, str(self.foo))
         return None
+
+    def add_sentence(self, serv, ev, helper, *words):
+        sentence = ' '.join([ w for w in words])
+        if sentence.count('%s') > 1:
+            self.respond(serv, ev, helper,  helper['author'] + ': too much format strings...')
+            return False
+
+        self.compliments.append(sentence)
+        with open('plugins/politebot', 'a') as f:
+            f.write(sentence)
+
+        self.respond(serv, ev, helper,  helper['author'] + ': done')
+        return True
         
     def on_pubmsg(self, serv, ev, helper):
         author = helper['author']
