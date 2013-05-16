@@ -57,6 +57,6 @@ class Log(object):
 
         if Log.verbosity >= verbosity:
             prefix = datetime.now().strftime('%Y-%m-%d %H:%m:%S ') + Log.level_definition[verbosity]
-            Log.log_file.write(prefix + msg.strip().replace("\n", "\n"+' '*len(prefix)) + "\n")
+            Log.log_file.write(prefix + str(msg).strip().replace("\n", "\n"+' '*len(prefix)) + "\n")
             Log.log_file.flush()
 
