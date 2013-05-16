@@ -7,14 +7,11 @@ class admin(Plugin):
     """
     Bot administrator.
     """
-
     plugin_name = 'admin'
-
 
     def __init__(self, bot, settings={}, unique=True):
         """
         """
-
         self.cmd = {
             'enable':{
                 'usage':"enable <plugin name>",
@@ -74,7 +71,6 @@ class admin(Plugin):
     def init(self):
         self.allowed_users = self.settings['users']
 
-
     def on_cmd(self, serv, ev, helper):
         """
         """
@@ -92,18 +88,14 @@ class admin(Plugin):
             except:
                 self.respond(serv, ev, helper,  helper['author'] + ': something failed, unknown')
 
-        
     def enable(self, serv, ev, helper, plug_name):
         return self.bot.enable_plugin(plug_name)
-
 
     def disable(self, serv, ev, helper, plug_name):
         return self.bot.disable_plugin(plug_name)
 
-
     def reset(self, serv, ev, helper, plug_name):
         return self.bot.reset(plug_name)
-
 
     def load(self, serv, ev, helper, plug_name, do_after = 'enable'):
         if do_after not in ('enable', 'disable'):
@@ -118,14 +110,11 @@ class admin(Plugin):
 
         return True
 
-
     def unload(self, serv, ev, helper, plug_name):
         return self.bot.unload_plugin(plug_name)
 
-
     def reload(self, serv, ev, helper, plug_name):
         return self.bot.reload_plugin(plug_name)
-
 
     def list(self, serv, ev, helper, what='all'):
         if what in ('all', 'enabled', 'disabled'):
@@ -140,10 +129,8 @@ class admin(Plugin):
         else:
             return False
                     
-
     def set(self, serv, ev, helper, option, value=None):
         return self.bot.set(option.replace('_', ' '), value)
-
     
     def get(self, serv, ev, helper, option):
         val = self.bot.get(option.replace('_', ' '))
@@ -152,7 +139,6 @@ class admin(Plugin):
         else:
             self.respond(serv, ev, helper, val)
         return None
-
 
     def quit(self, serv, ev, helper):
         self.bot.close()

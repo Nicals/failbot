@@ -1,4 +1,3 @@
-
 ##
 ## Failbot settings file
 ##
@@ -51,3 +50,5 @@ plugin_settings = {
         'users':['Nicals']
     },
 }
+
+

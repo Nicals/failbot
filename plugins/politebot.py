@@ -1,6 +1,7 @@
 from plugbase import Plugin
 from random import randint
 
+
 class politebot(Plugin):
 
     plugin_name = 'politebot'
@@ -24,13 +25,11 @@ class politebot(Plugin):
 
         Plugin.__init__(self, bot, settings, True)
 
-
     def init(self):
         self.base_chance = self.settings['base chance'] if 'base chance' in self.settings else 30
         self.load_compliment(None, None, None)
         for user in self.foo:
             self.foo[user] = self.base_chance
-
 
     def load_compliment(self, serv, ev, helper):
         try:
@@ -46,7 +45,6 @@ class politebot(Plugin):
         self.respond(serv, ev, helper, str(self.foo))
         return None
         
-
     def on_pubmsg(self, serv, ev, helper):
         author = helper['author']
 
@@ -63,4 +61,5 @@ class politebot(Plugin):
                     serv.privmsg(helper['chan'], sentence % author)
             else:
                 self.foo[author] = self.foo[author] - 1
+
 

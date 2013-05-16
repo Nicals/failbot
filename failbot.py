@@ -23,7 +23,6 @@ class FailBot(ircbot.SingleServerIRCBot):
     # a copy of the generic settings in module settings
     settings = {}
 
-
     def __init__(self, settings, plugins):
         """
         """
@@ -68,15 +67,14 @@ class FailBot(ircbot.SingleServerIRCBot):
         Log.log(Log.log_lvl.INFO,
                     "\n".join([p[0] + (' [enabled]' if p[1] else ' [disabled]') for p in self.list_plugins()]))
 
-
     def close(self):
         """
         Shutdown failbot
         """
         for p in self.enabled_plugins:
             p.on_shutdown()
-        self.die()
 
+        self.die()
 
     def load_plugin(self, plug_name):
         """
@@ -88,15 +86,17 @@ class FailBot(ircbot.SingleServerIRCBot):
                 mod = __import__('plugins.' + plug_name, fromlist=[plug_name])
                 self.plugins[plug_name] = getattr(mod, plug_name)
                 Log.log(Log.log_lvl.INFO, 'plugin ' + plug_name + ' loaded')
+
                 return True
             else:
                 Log.log(Log.log_lvl.WARNING, 'failed to load plugin ' + plug_name + '. seems already loaded.')
+
                 return False
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Failed to load plugin ' + plug_name + '. Catches exception ' + str(e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
-            return False
 
+            return False
 
     def unload_plugin(self, plug_name):
         """
@@ -107,25 +107,29 @@ class FailBot(ircbot.SingleServerIRCBot):
                 del self.plugins[plug_name]
                 del modules['plugins.' + plug_name]
                 Log.log(Log.log_lvl.INFO, 'plugin ' + plug_name + ' unloaded')
+                
                 return True
             else:
                 Log.log(Log.log_lvl.WARNING, 'cannot unload plugin ' + plug_name + '. plugin not loaded')
+
                 return False
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Failed to unload plugin ' + plug_name + '. Catches exception ' + str(e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
-            return False
 
+            return False
 
     def reload_plugin(self, plug_name):
         if plug_name not in self.plugins or 'plugins.' + plug_name not in modules:
             Log.log(Log.log_lvl.WARNING, 'cannot reload ' + plug_name + ', plugin not loaded')
+
             return False
 
         enabled = len([p for p in self.enabled_plugins if p.plugin_name == plug_name ]) > 0
 
         if not self.disable_plugin(plug_name, disable_all = True):
             Log.log(Log.log_lvl.WARNING, 'Failed to reload ' + plug_name + ', disable failed')
+
             return False
 
         reload(modules['plugins.' + plug_name])
@@ -138,7 +142,6 @@ class FailBot(ircbot.SingleServerIRCBot):
 
         return True
 
-
     def enable_plugin(self, plug_name):
         """
         """
@@ -148,17 +151,19 @@ class FailBot(ircbot.SingleServerIRCBot):
                 for p in self.enabled_plugins:
                     if isinstance(p, self.plugins[plug_name]):
                         Log.log(Log.log_lvl.ERROR, 'Failed to enable plugin ' + plug_name + ' which is not instance of Plugin.')
+
                         return False
             plug_settings = settings.plugin_settings[plug_name] if plug_name in settings.plugin_settings else {}
             self.enabled_plugins.append(self.plugins[plug_name](self, plug_settings))
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Failed to enable plugin ' + plug_name + '. Catches exception ' + str(e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
+
             return False
         else:
             Log.log(Log.log_lvl.INFO, 'Enable ' + plug_name)
-            return True
 
+            return True
 
     def disable_plugin(self, plug_name, disable_all=False):
         """
@@ -182,11 +187,12 @@ class FailBot(ircbot.SingleServerIRCBot):
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Failed to disable plugin ' + plug_name + '. Catches exception ' + str(e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
+
             return False
         else:
             Log.log(Log.log_lvl.INFO, 'Disable ' + plug_name)
-            return True
 
+            return True
 
     def list_plugins(self):
         """
@@ -201,8 +207,8 @@ class FailBot(ircbot.SingleServerIRCBot):
     def get(self, opt):
         if opt in self.settings:
             return str(self.settings[opt])
-        return False
 
+        return False
 
     def set(self, opt, val):
         if opt == 'cmd prefix':
@@ -219,8 +225,8 @@ class FailBot(ircbot.SingleServerIRCBot):
             Log.setLogFile(self.settings[opt])
         else:
             return False
-        return True
 
+        return True
 
     def reset(self, plug_name = None):
         """
@@ -240,11 +246,12 @@ class FailBot(ircbot.SingleServerIRCBot):
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Failed to reset plugin ' + ', '.join(plug_name) + '. Catches exception ' + str(e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
+
             return False
         else:
             Log.log(Log.log_lvl.INFO, 'Reset ' + ', '.join(plug_name))
-            return True
 
+            return True
 
     def on_welcome(self, serv, ev):
         """
@@ -257,13 +264,11 @@ class FailBot(ircbot.SingleServerIRCBot):
             Log.log(Log.log_lvl.INFO, 'joining ' + channel)
             serv.join(channel)
 
-
     # TODO: may be some plugins want to save some stuff here ?
     def on_disconnect(self, serv, ev):
         """
         """
         pass
-
 
     def on_pubmsg(self, serv, ev):
         """
@@ -295,7 +300,6 @@ class FailBot(ircbot.SingleServerIRCBot):
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Fail to process pubmsg event. Catches exception ' + str(e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
-
 
     def on_privmsg(self, serv, ev):
         """
@@ -341,7 +345,6 @@ def signal_handler(signum, frame):
         failbot.close()
         Log.close()
         exit(0)
-        
 
 
 if __name__ == '__main__':

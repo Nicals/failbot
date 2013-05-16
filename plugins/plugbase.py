@@ -3,6 +3,7 @@ from copy import deepcopy
 from traceback import format_exc
 from time import sleep
 
+
 class Plugin():
     """
     Base class for all plugins
@@ -39,10 +40,8 @@ class Plugin():
     def __str__(self):
         return self.plugin_name
 
-    
     def __repr__(self):
         return str({'name':self.plugin_name, 'settings':self.settings})
-
 
     def base_init(self, settings={}):
         """
@@ -50,12 +49,10 @@ class Plugin():
         self.settings = deepcopy(settings)
         self.init()
 
-
     def init(self):
         """
         """
         pass
-
 
     def on_pubmsg(self, serv, ev, helper):
         """
@@ -121,7 +118,6 @@ class Plugin():
         serv.privmsg(target, msg)
 
 
-
 class PluginError(Exception):
     """
     Raised if the plugin doesn't have a name defined
@@ -141,6 +137,7 @@ class PluginNoNameError(PluginError):
 
     def __str__(self):
         return 'Plugin error: no name implemented'
+
 
 class PluginNameFormatError(PluginError):
     """

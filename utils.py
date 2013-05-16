@@ -1,4 +1,3 @@
-
 from sys import stdout
 from datetime import datetime
 
@@ -24,14 +23,12 @@ class Log(object):
     log_file = stdout
     log_filename = None
 
-
     @staticmethod
     def close():
         """
         """
         if Log.log_file != stdout:
             Log.log_file.close()
-
 
     @staticmethod
     def setLogFile(log_file=None):
@@ -49,7 +46,6 @@ class Log(object):
         else:
             Log.log_file = stdout
 
-
     @staticmethod
     def log(verbosity, msg):
         """
@@ -59,4 +55,5 @@ class Log(object):
             prefix = datetime.now().strftime('%Y-%m-%d %H:%m:%S ') + Log.level_definition[verbosity]
             Log.log_file.write(prefix + str(msg).strip().replace("\n", "\n"+' '*len(prefix)) + "\n")
             Log.log_file.flush()
+
 
