@@ -87,6 +87,8 @@ class admin(Plugin):
                     self.respond(serv, ev, helper,  helper['author'] + ': something failed')
             except TypeError:
                 self.respond(serv, ev, helper,  helper['author'] + ': something failed, wrong args')
+            except SystemExit:
+                raise
             except:
                 self.respond(serv, ev, helper,  helper['author'] + ': something failed, unknown')
 
