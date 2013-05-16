@@ -50,7 +50,8 @@ plugin_settings = {
         'users':['Nicals']
     },
     'polite_bote':{
-        'polite_file':'plugins/polite',
+        'polite file':'plugins/politefile',
+        'base chance':60,
     }
 }
 

@@ -34,8 +34,8 @@ class politebot(Plugin):
 
 
     def init(self):
-        self.base_chance = self.settings['base chance'] if 'base chance' in self.settings else 30
-        self.polite_file = self.settings.get('polite file', 'plugins/politebot')
+        self.base_chance = self.settings.get('base chance', 30)
+        self.polite_file = self.settings.get('polite file', 'plugins/politefile')
         self.load_compliment(None, None, None)
         for user in self.foo:
             self.foo[user] = self.base_chance
