@@ -49,6 +49,9 @@ plugin_settings = {
     'admin':{
         'users':['Nicals']
     },
+    'polite_bote':{
+        'polite_file':'plugins/polite',
+    }
 }
 
 

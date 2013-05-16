@@ -1,5 +1,6 @@
 from plugbase import Plugin
 from random import randint
+from utils import Log
 
 
 class politebot(Plugin):
@@ -31,17 +32,20 @@ class politebot(Plugin):
 
         Plugin.__init__(self, bot, settings, True)
 
+
     def init(self):
         self.base_chance = self.settings['base chance'] if 'base chance' in self.settings else 30
+        self.polite_file = self.settings.get('polite file', 'plugins/politebot')
         self.load_compliment(None, None, None)
         for user in self.foo:
             self.foo[user] = self.base_chance
 
     def load_compliment(self, serv, ev, helper):
         try:
-            with open('plugins/politebot', 'r') as f:
+            with open(self.polite_file, 'r') as f:
                 self.compliments = [ l.strip() for l in f.readlines() ]
         except:
+            Log.log(Log.log_lvl.ERROR, 'politebot: politefile %s can\'t be read' % self.polite_file)
             return False
         else:
             return True
@@ -58,7 +62,7 @@ class politebot(Plugin):
             return False
 
         self.compliments.append(sentence)
-        with open('plugins/politebot', 'a') as f:
+        with open(self.polite_file, 'a') as f:
             f.write(sentence)
 
         self.respond(serv, ev, helper,  helper['author'] + ': done')
