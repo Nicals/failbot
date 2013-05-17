@@ -42,7 +42,7 @@ class FailBot(ircbot.SingleServerIRCBot):
         Log.verbosity = self.settings['verbose']
         Log.setLogFile(self.settings['log file'])
 
-        Log.log(Log.log_lvl.DEBUG, 'Settings loaded: ' + str(self.settings))
+        Log.log(Log.log_lvl.DEBUG, 'Settings loaded: %s' % self.settings)
 
         ircbot.SingleServerIRCBot.__init__(self,
                                     server_list = [(
@@ -53,7 +53,7 @@ class FailBot(ircbot.SingleServerIRCBot):
                                     realname = self.settings['realname'],
                                     reconnection_interval = self.settings['reconnect interval']
                                )
-        Log.log(Log.log_lvl.INFO, 'Connecting to ' + settings['server'] + ':' + str(settings['port']))
+        Log.log(Log.log_lvl.INFO, 'Connection to %s:%d' % (settings['server'], settings['port']))
 
         # load some plugins
         for f in [ path.splitext(f)[0] for f in listdir(path.dirname(path.realpath(__file__)) + '/plugins')
@@ -83,15 +83,15 @@ class FailBot(ircbot.SingleServerIRCBot):
             if not 'plugins.' + plug_name in modules:
                 mod = __import__('plugins.' + plug_name, fromlist=[plug_name])
                 self.plugins[plug_name] = getattr(mod, plug_name)
-                Log.log(Log.log_lvl.INFO, 'plugin ' + plug_name + ' loaded')
+                Log.log(Log.log_lvl.INFO, 'plugin %s loaded' % plug_name)
 
                 return True
             else:
-                Log.log(Log.log_lvl.WARNING, 'failed to load plugin ' + plug_name + '. seems already loaded.')
+                Log.log(Log.log_lvl.WARNING, 'failed to load plugin %s. seems already loaded.' % plug_name)
 
                 return False
         except Exception, e:
-            Log.log(Log.log_lvl.ERROR, 'Failed to load plugin ' + plug_name + '. Catches exception ' + str(e))
+            Log.log(Log.log_lvl.ERROR, 'Failed to load plugin %s. Catches exception ' % e)
             Log.log(Log.log_lvl.DEBUG, format_exc())
 
             return False
@@ -104,29 +104,29 @@ class FailBot(ircbot.SingleServerIRCBot):
                 self.disable_plugin(plug_name, disable_all = True)
                 del self.plugins[plug_name]
                 del modules['plugins.' + plug_name]
-                Log.log(Log.log_lvl.INFO, 'plugin ' + plug_name + ' unloaded')
+                Log.log(Log.log_lvl.INFO, 'plugin %s unloaded ' % plug_name)
                 
                 return True
             else:
-                Log.log(Log.log_lvl.WARNING, 'cannot unload plugin ' + plug_name + '. plugin not loaded')
+                Log.log(Log.log_lvl.WARNING, 'cannot unload plugin %. plugin not loaded' % plug_name)
 
                 return False
         except Exception, e:
-            Log.log(Log.log_lvl.ERROR, 'Failed to unload plugin ' + plug_name + '. Catches exception ' + str(e))
+            Log.log(Log.log_lvl.ERROR, 'Failed to unload plugin %s. Catches exception %s' % (plug_name, e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
 
             return False
 
     def reload_plugin(self, plug_name):
         if plug_name not in self.plugins or 'plugins.' + plug_name not in modules:
-            Log.log(Log.log_lvl.WARNING, 'cannot reload ' + plug_name + ', plugin not loaded')
+            Log.log(Log.log_lvl.WARNING, 'cannot reload %s, plugin not loaded' % plug_name)
 
             return False
 
         enabled = len([p for p in self.enabled_plugins if p.plugin_name == plug_name ]) > 0
 
         if not self.disable_plugin(plug_name, disable_all = True):
-            Log.log(Log.log_lvl.WARNING, 'Failed to reload ' + plug_name + ', disable failed')
+            Log.log(Log.log_lvl.WARNING, 'Failed to reload %s, disable failed' % plug_name)
 
             return False
 
@@ -136,7 +136,7 @@ class FailBot(ircbot.SingleServerIRCBot):
         if enabled:
             self.enable_plugin(plug_name)
 
-        Log.log(Log.log_lvl.INFO, 'plugin ' + plug_name + ' reloaded')
+        Log.log(Log.log_lvl.INFO, 'plugin %s reloaded' % plug_name)
 
         return True
 
@@ -148,18 +148,18 @@ class FailBot(ircbot.SingleServerIRCBot):
             if self.plugins[plug_name].unique:
                 for p in self.enabled_plugins:
                     if isinstance(p, self.plugins[plug_name]):
-                        Log.log(Log.log_lvl.ERROR, 'Failed to enable plugin ' + plug_name + ' which is not instance of Plugin.')
+                        Log.log(Log.log_lvl.ERROR, 'Failed to enable plugin %s which is not instance of Plugin.' % plug_name)
 
                         return False
             plug_settings = settings.plugin_settings[plug_name] if plug_name in settings.plugin_settings else {}
             self.enabled_plugins.append(self.plugins[plug_name](self, plug_settings))
         except Exception, e:
-            Log.log(Log.log_lvl.ERROR, 'Failed to enable plugin ' + plug_name + '. Catches exception ' + str(e))
+            Log.log(Log.log_lvl.ERROR, 'Failed to enable plugin %s. Catches exception ' % e)
             Log.log(Log.log_lvl.DEBUG, format_exc())
 
             return False
         else:
-            Log.log(Log.log_lvl.INFO, 'Enable ' + plug_name)
+            Log.log(Log.log_lvl.INFO, 'Enable %s.' % plug_name)
 
             return True
 
@@ -183,12 +183,12 @@ class FailBot(ircbot.SingleServerIRCBot):
                 del self.enabled_plugins[a]
 
         except Exception, e:
-            Log.log(Log.log_lvl.ERROR, 'Failed to disable plugin ' + plug_name + '. Catches exception ' + str(e))
+            Log.log(Log.log_lvl.ERROR, 'Failed to disable plugin %s. Catches exception %s' % (plug_name, e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
 
             return False
         else:
-            Log.log(Log.log_lvl.INFO, 'Disable ' + plug_name)
+            Log.log(Log.log_lvl.INFO, 'Disable %s.' % plug_name)
 
             return True
 
@@ -242,12 +242,12 @@ class FailBot(ircbot.SingleServerIRCBot):
                 for p in plug_in:
                     p.base_init(settings.plugin_settings[plug] if plug in settings.plugin_settings else {})
         except Exception, e:
-            Log.log(Log.log_lvl.ERROR, 'Failed to reset plugin ' + ', '.join(plug_name) + '. Catches exception ' + str(e))
+            Log.log(Log.log_lvl.ERROR, 'Failed to reset plugin %s. Catches exception %s' % (', '.join(plug_name), e))
             Log.log(Log.log_lvl.DEBUG, format_exc())
 
             return False
         else:
-            Log.log(Log.log_lvl.INFO, 'Reset ' + ', '.join(plug_name))
+            Log.log(Log.log_lvl.INFO, 'Reset %s' % ', '.join(plug_name))
 
             return True
 
@@ -256,10 +256,10 @@ class FailBot(ircbot.SingleServerIRCBot):
         On welcome, join channels sets in settings.
         """
         if self.settings['password']:
-            serv.privmsg('nickserv', 'identify ' + self.settings['password'])
+            serv.privmsg('nickserv', 'identify %s' % self.settings['password'])
         for c in self.settings['channels']:
             channel = c[0] + ' ' + c[1] if c[1] else ''
-            Log.log(Log.log_lvl.INFO, 'joining ' + channel)
+            Log.log(Log.log_lvl.INFO, 'joining %s' % channel)
             serv.join(channel)
 
     def on_join(self, serv, ev):
@@ -300,7 +300,7 @@ class FailBot(ircbot.SingleServerIRCBot):
                     p.on_pubmsg(serv, ev, helper)
 
         except Exception, e:
-            Log.log(Log.log_lvl.ERROR, 'Fail to process pubmsg event. Catches exception ' + str(e))
+            Log.log(Log.log_lvl.ERROR, 'Fail to process pubmsg event. Catches exception %s' % e)
             Log.log(Log.log_lvl.DEBUG, format_exc())
 
     def on_privmsg(self, serv, ev):
@@ -331,7 +331,7 @@ class FailBot(ircbot.SingleServerIRCBot):
                     p.on_privmsg(serv, ev, helper)
 
         except Exception, e:
-            Log.log(Log.log_lvl.ERROR, 'Fail to process privmsg event. Catches exception ' + str(e))
+            Log.log(Log.log_lvl.ERROR, 'Fail to process privmsg event. Catches exception %s' % e)
             Log.log(Log.log_lvl.DEBUG, format_exc())
 
 
