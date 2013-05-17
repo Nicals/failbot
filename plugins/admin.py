@@ -117,8 +117,13 @@ class admin(Plugin):
     def unload(self, serv, ev, helper, plug_name):
         return self.bot.unload_plugin(plug_name)
 
-    def reload(self, serv, ev, helper, plug_name):
-        return self.bot.reload_plugin(plug_name)
+    def reload(self, serv, ev, helper, plug_name, enable='disable'):
+        success = self.bot.reload_plugin(plug_name)
+        if not success:
+            return False
+        if enable == 'enable' or plug_name == self.plugin_name:
+            success = self.bot.enable_plugin(plug_name)
+        return success
 
     def list(self, serv, ev, helper, what='all'):
         if what in ('all', 'enabled', 'disabled'):

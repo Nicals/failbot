@@ -58,4 +58,3 @@ If you want to reload a plugin, you can use the above command or the 'reload'
 one whiche will call 'unload' and 'load'. The first argument is the plugin
 name, the second is the 'enable' or 'disable' argument for 'load'. This
 command if you have change a plugin's code and want to apply the results.
-'load' and 'reload' command can't be applied on failbot itself.
