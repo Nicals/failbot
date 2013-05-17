@@ -69,11 +69,11 @@ class Plugin():
         self.unique = unique
         self.timers = {}
 
-        # self.cmd['help'] = {
-        #     'usage':'help [ <plugin> | all (default) ]',
-        #     'help':'get some help for a given plugin or all of them',
-        #     'func':self.help
-        # }
+        self.cmd['help'] = {
+            'usage':'help [ <plugin> | all (default) ]',
+            'help':'get some help for a given plugin or all of them',
+            'func':self.help
+        }
 
         self.init()
 
@@ -152,20 +152,23 @@ class Plugin():
             timer.stop()
             timer.join()
 
-    def help(self, serv, ev, helper, plug_name='all'):
+    def help(self, serv, ev, helper, plug_name='all', cmd=None):
         """
         Print help for a given plugin.
         """
-        return True 
-
         help_str = ''
         if plug_name == 'all' or plug_name == self.plugin_name:
             if plug_name == 'all':
-                help_str = '=== ' + self.plugin_name + ' ===\n'
-            for c in self.cmd.values():
-                help_str = help_str = c['usage'] + "\n> " + c['help'] + "\n"
-            serv.privmsg(helper['chan'], help_str)
-            sleep(1)
+                serv.privmsg(helper['chan'], '=== %s ===' % self.plugin_name)
+                sleep(.7)
+            if plug_name != 'all' and cmd is not None:
+                if cmd in self.cmd:
+                    serv.privmsg(helper['chan'], '%s : %s' % (self.cmd[cmd]['usage'], self.cmd[cmd]['help']))
+                else:
+                    serv.privmsg(helper['chan'], 'Unknown cmd.')
+            else:
+                serv.privmsg(helper['chan'], ' | '.join([c for c in self.cmd]))
+                sleep(.7)
 
     def respond(self, serv, ev, helper, msg):
         """
