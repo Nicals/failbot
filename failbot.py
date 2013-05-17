@@ -409,13 +409,16 @@ if __name__ == '__main__':
             pid = int(f.read())
         try:
             kill(pid, SIGINT)
-            unlink(pid_file)
         except Exception, e:
             print 'Cannot kill process [%d]: %s' % (pid, str(e))
             exit(71)
         print 'failbot stopped [%d]' % pid
     else:
         failbot = FailBot(settings.settings, settings.enabled_plugins)
-        failbot.start()
+        try:
+            failbot.start()
+        except SystemExit:
+            if daemonize:
+                unlink(pid_file)
 
 
