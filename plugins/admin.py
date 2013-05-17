@@ -1,5 +1,7 @@
 from plugbase import Plugin
 from plugbase import PluginNotImplementedError 
+from traceback import format_exc
+from utils import Log
 import traceback
 
 
@@ -85,8 +87,10 @@ class admin(Plugin):
                 self.respond(serv, ev, helper,  helper['author'] + ': something failed, wrong args')
             except SystemExit:
                 raise
-            except:
+            except Exception, e:
                 self.respond(serv, ev, helper,  helper['author'] + ': something failed, unknown')
+                Log.log(Log.log_lvl.ERROR, 'Admin command %s failed. Catches exception %s' % (helper['cmd'], e))
+                Log.log(Log.log_lvl.DEBUG, format_exc())
 
     def enable(self, serv, ev, helper, plug_name):
         return self.bot.enable_plugin(plug_name)
