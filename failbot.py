@@ -11,6 +11,8 @@ from traceback import format_exc
 from copy import deepcopy
 from utils import Log
 from argparse import ArgumentParser
+from importlib import import_module
+from plugins.plugbase import Plugin
 
 
 class FailBot(ircbot.SingleServerIRCBot):
@@ -38,6 +40,7 @@ class FailBot(ircbot.SingleServerIRCBot):
             'server':settings['server'],
             'port':settings['port'],
             'channels':settings['channels'],
+            'cmd prefix':settings.get('cmd prefix', '!'),
         }
 
         Log.verbosity = self.settings['verbose']
@@ -79,20 +82,38 @@ class FailBot(ircbot.SingleServerIRCBot):
 
     def load_plugin(self, plug_name):
         """
+        Load a module in plugins package.
+        The module must (MUST !) have one subclass of Plugin in it.
         """
         import_string = 'from plugins import %s' % plug_name
         try:
             # don't even try to import if the plugin is already loaded
             if not 'plugins.' + plug_name in modules:
-                mod = __import__('plugins.' + plug_name, fromlist=[plug_name])
-                self.plugins[plug_name] = getattr(mod, plug_name)
-                Log.log(Log.log_lvl.INFO, 'plugin %s loaded' % plug_name)
+                mod = import_module('plugins.%s' % plug_name)
+                candidates = []
+                # Find a unique class that is subclass of Plugin in the module
+                for attr in dir(mod):
+                    try:
+                        candidate = getattr(mod, attr)
+                        if issubclass(candidate, Plugin) and candidate is not Plugin:
+                            candidates.append(candidate)
+                    except TypeError:
+                        pass
+
+                if len(candidates) != 1:
+                    Log.log(Log.log_lvl.ERROR, 'cannot load plugin {p} : one and only one plugin class must be defined in plugins.{p}.'.format(p=plug_name))
+                    return False
+
+                self.plugins[plug_name] = candidates[0]
 
                 return True
             else:
                 Log.log(Log.log_lvl.WARNING, 'failed to load plugin %s. seems already loaded.' % plug_name)
 
                 return False
+        except ImportError:
+            Log.log(Log.log_lvl.ERROR, 'Cannot load %s, module do not exists' % plug_name)
+            return False
         except Exception, e:
             Log.log(Log.log_lvl.ERROR, 'Failed to load plugin %s. Catches exception ' % e)
             Log.log(Log.log_lvl.DEBUG, format_exc())
@@ -121,25 +142,22 @@ class FailBot(ircbot.SingleServerIRCBot):
             return False
 
     def reload_plugin(self, plug_name):
+        """
+        Reload a module. If the plugin is not already loaded, this method acts as load_plugin.
+        """
         if plug_name not in self.plugins or 'plugins.' + plug_name not in modules:
-            Log.log(Log.log_lvl.WARNING, 'cannot reload %s, plugin not loaded' % plug_name)
+            Log.log(Log.log_lvl.WARNING, 'cannot reload %s, plugin not loaded. Failbot will load it.' % plug_name)
+            return self.load_plugin(plug_name)
 
+        try:
+            plugin_cname = self.plugins[plug_name].__name__
+            self.disable_plugin(plug_name)
+            reload(modules['plugins.%s' % plug_name])
+            self.plugins[plug_name] = getattr(modules['plugins.%s' % plug_name], plugin_cname)
+            Log.log(Log.log_lvl.INFO, 'plugin %s reloaded' % plug_name)
+        except ImportError:
+            Log.log(Log.log_lvl.ERROR, 'cannot reload %s, no module found.' % plug_name)
             return False
-
-        enabled = len([p for p in self.enabled_plugins if p.plugin_name == plug_name ]) > 0
-
-        if not self.disable_plugin(plug_name, disable_all = True):
-            Log.log(Log.log_lvl.WARNING, 'Failed to reload %s, disable failed' % plug_name)
-
-            return False
-
-        reload(modules['plugins.' + plug_name])
-        self.plugins[plug_name] = getattr(modules['plugins.' + plug_name], plug_name)
-
-        if enabled:
-            self.enable_plugin(plug_name)
-
-        Log.log(Log.log_lvl.INFO, 'plugin %s reloaded' % plug_name)
 
         return True
 
