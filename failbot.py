@@ -27,19 +27,17 @@ class FailBot(ircbot.SingleServerIRCBot):
         """
         """
 
-        self.settings = deepcopy(settings)
-
-        # apply default settings
-        if not 'nickname' in self.settings:
-            self.settings['nickname'] = 'failbot'
-        if not 'realname' in self.settings:
-            self.settings['realname'] = 'realname'
-        if not 'reconnect interval' in self.settings:
-            self.settings['reconnect interval'] = 60
-        if not 'verbose' in self.settings:
-            self.settings['verbose'] = log.Log.log_lvl.ERROR
-        if not 'log file' in self.settings:
-            self.settings['log file'] = None
+        self.settings = {
+            'nickname':settings.get('nickname', 'failbot'),
+            'password':settings['password'],
+            'realname':settings.get('realname', 'failbot'),
+            'reconnect interval':settings.get('reconnect interval', 60),
+            'verbose':settings.get('verbose', Log.log_lvl.ERROR),
+            'log file':settings.get('log file', None),
+            'server':settings['server'],
+            'port':settings['port'],
+            'channels':settings['channels'],
+        }
 
         Log.verbosity = self.settings['verbose']
         Log.setLogFile(self.settings['log file'])
@@ -365,7 +363,7 @@ if __name__ == '__main__':
     signal(SIGINT, signal_handler)
     signal(SIGQUIT, signal_handler)
 
-    pid_file = settings.settings['pid file'] if settings.settings['pid file'] else '/tmp/failbot.pid'
+    pid_file = settings.settings.get('pid file', '/tmp/failbot.pid')
 
     if daemonize:
         # only one instance of failbot is allowed
