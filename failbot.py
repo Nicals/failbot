@@ -264,6 +264,10 @@ class FailBot(ircbot.SingleServerIRCBot):
             Log.log(Log.log_lvl.INFO, 'joining ' + channel)
             serv.join(channel)
 
+    def on_join(self, serv, ev):
+        for p in self.enabled_plugins:
+            p.on_join(serv, ev)
+
     # TODO: may be some plugins want to save some stuff here ?
     def on_disconnect(self, serv, ev):
         """

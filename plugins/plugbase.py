@@ -1,7 +1,46 @@
 import string
 from copy import deepcopy
+import threading
 from traceback import format_exc
 from time import sleep
+
+
+class Timer(threading.Thread):
+    """
+    This class represents a timer used in plugins
+    """
+
+    def __init__(self, owner, name, delay, start=True, loops=1, *args, **kwargs):
+        """
+        delay in seconds
+        start if the thread is to be started just after its creation
+        loops: how many time do we want to call the on_timeout function.
+               None to infinity
+        """
+        super(Timer, self).__init__(*args, **kwargs)
+
+        self.owner = owner
+        self.delay = float(delay)
+        self.name = name
+        self.loops = loops
+        self.stopevent = threading.Event()
+
+        if start:
+            self.start()
+
+    def run(self):
+        delay = self.delay
+
+        while self.loops is None or self.loops > 0:
+            if not self.stopevent.wait(self.delay):
+                self.owner.on_timeout(self)
+                if self.loops:
+                    self.loops -= 1
+            else:
+                break
+
+    def stop(self):
+        self.stopevent.set()
 
 
 class Plugin():
@@ -28,6 +67,7 @@ class Plugin():
         self.settings = deepcopy(settings)
         self.bot = bot
         self.unique = unique
+        self.timers = {}
 
         # self.cmd['help'] = {
         #     'usage':'help [ <plugin> | all (default) ]',
@@ -50,6 +90,16 @@ class Plugin():
         self.init()
 
     def init(self):
+        """
+        """
+        pass
+
+    def createTimer(self, name, delay, start=True, loops=1):
+        if name in self.timers:
+            raise IndexError('A timer with this name already exists')
+        self.timers[name] = Timer(self, name, delay, start, loops)
+
+    def on_join(self, serv, ev):
         """
         """
         pass
@@ -88,12 +138,19 @@ class Plugin():
         if helper['cmd'] in self.cmd:
             self.cmd[helper['cmd']]['func'](serv, ev, helper, *helper['args'])
 
+    def on_timeout(self, timer):
+        """
+        When a timeout event is recieved
+        """
+        pass
+
     def on_shutdown(self):
         """
         Define what a plugin may do when the bot shuts down
         """
-        pass
-
+        for timer in self.timers.values():
+            timer.stop()
+            timer.join()
 
     def help(self, serv, ev, helper, plug_name='all'):
         """
@@ -110,12 +167,15 @@ class Plugin():
             serv.privmsg(helper['chan'], help_str)
             sleep(1)
 
-
     def respond(self, serv, ev, helper, msg):
         """
         """
         target = helper['chan'] if ev.eventtype() == 'pubmsg' else helper['author']
         serv.privmsg(target, msg)
+
+    def send_to_channels(self, msg):
+        for channel in self.bot.channels:
+            self.bot.connection.privmsg(channel, msg)
 
 
 class PluginError(Exception):
