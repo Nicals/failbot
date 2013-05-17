@@ -99,6 +99,32 @@ class Plugin():
             raise IndexError('A timer with this name already exists')
         self.timers[name] = Timer(self, name, delay, start, loops)
 
+    def startTimer(self, name=None):
+        if not name:
+            for t in self.timers:
+                t.run()
+        else:
+            self.timers[name].run()
+
+    def stopTimer(self, name=None):
+        if not name:
+            for t in self.timers:
+                t.stop()
+                t.join()
+        else:
+            self.timers[name].stop()
+
+    def resetTimer(self, name=None):
+        if not name:
+            for t in self.timers:
+                t.stop()
+                t.join()
+                t.run()
+        else:
+            self.timers[name].stop()
+            self.timers[name].join()
+            self.timers[name].run()
+
     def on_join(self, serv, ev):
         """
         """
