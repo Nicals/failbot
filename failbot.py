@@ -32,6 +32,7 @@ class FailBot(ircbot.SingleServerIRCBot):
             'password':settings['password'],
             'realname':settings.get('realname', 'failbot'),
             'reconnect interval':settings.get('reconnect interval', 60),
+            'quit message':settings.get('quit message', 'I\'m out.'),
             'verbose':settings.get('verbose', Log.log_lvl.ERROR),
             'log file':settings.get('log file', None),
             'server':settings['server'],
@@ -72,7 +73,9 @@ class FailBot(ircbot.SingleServerIRCBot):
         for p in self.enabled_plugins:
             p.on_shutdown()
 
-        self.die()
+        self.connection.disconnect(self.settings['quit message'])
+        Log.close()
+        exit(0)
 
     def load_plugin(self, plug_name):
         """
@@ -345,8 +348,6 @@ def signal_handler(signum, frame):
     """
     if signum == SIGINT or signum == SIGQUIT:
         failbot.close()
-        Log.close()
-        exit(0)
 
 
 if __name__ == '__main__':
