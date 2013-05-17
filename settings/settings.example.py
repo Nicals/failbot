@@ -34,6 +34,8 @@ settings = {
     'log file':None,
     # pid file. default is /tmp/failbot.pid
     'pid file':'/tmp/failbot.pid',
+    # message to print when failbot disconnects
+    'quit message':'I\'m out',
 }
 
 
