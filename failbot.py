@@ -44,7 +44,7 @@ class FailBot(ircbot.SingleServerIRCBot):
         }
 
         Log.verbosity = self.settings['verbose']
-        Log.setLogFile(self.settings['log file'])
+        Log.setLogFile(self.settings.get('log file', None))
 
         Log.log(Log.log_lvl.DEBUG, 'Settings loaded: %s' % self.settings)
 
