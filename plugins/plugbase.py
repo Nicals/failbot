@@ -102,9 +102,9 @@ class Plugin():
     def startTimer(self, name=None):
         if not name:
             for t in self.timers:
-                t.run()
+                t.start()
         else:
-            self.timers[name].run()
+            self.timers[name].start()
 
     def stopTimer(self, name=None):
         if not name:
@@ -119,11 +119,11 @@ class Plugin():
             for t in self.timers:
                 t.stop()
                 t.join()
-                t.run()
+                t.start()
         else:
             self.timers[name].stop()
             self.timers[name].join()
-            self.timers[name].run()
+            self.timers[name].start()
 
     def on_join(self, serv, ev):
         """
