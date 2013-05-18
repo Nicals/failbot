@@ -189,15 +189,15 @@ class Plugin():
         help_str = ''
         if plug_name == 'all' or plug_name == self.plugin_name:
             if plug_name == 'all':
-                serv.privmsg(helper['chan'], '=== %s ===' % self.plugin_name)
+                self.respond(serv, ev, helper, '=== %s ===' % self.plugin_name)
                 sleep(.7)
             if plug_name != 'all' and cmd is not None:
                 if cmd in self.cmd:
-                    serv.privmsg(helper['chan'], '%s : %s' % (self.cmd[cmd]['usage'], self.cmd[cmd]['help']))
+                    self.respond(serv, ev, helper, '%s : %s' % (self.cmd[cmd]['usage'], self.cmd[cmd]['help']))
                 else:
-                    serv.privmsg(helper['chan'], 'Unknown cmd.')
+                    self.respond(serv, ev, helper, 'Unknown cmd.')
             else:
-                serv.privmsg(helper['chan'], ' | '.join([c for c in self.cmd]))
+                self.respond(serv, ev, helper, ' | '.join([c for c in self.cmd if c != 'help']))
                 sleep(.7)
 
     def respond(self, serv, ev, helper, msg):
