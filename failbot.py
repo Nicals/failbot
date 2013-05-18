@@ -74,7 +74,7 @@ class FailBot(ircbot.SingleServerIRCBot):
         Shutdown failbot
         """
         for p in self.enabled_plugins:
-            p.on_shutdown()
+            p._on_shutdown()
 
         self.connection.disconnect(self.settings['quit message'])
         Log.close()

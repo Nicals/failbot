@@ -170,13 +170,17 @@ class Plugin():
         """
         pass
 
-    def on_shutdown(self):
+    def _on_shutdown(self):
         """
         Define what a plugin may do when the bot shuts down
         """
         for timer in self.timers.values():
             timer.stop()
             timer.join()
+        self.on_shutdown
+
+    def on_shutdown(self):
+        pass
 
     def help(self, serv, ev, helper, plug_name='all', cmd=None):
         """
