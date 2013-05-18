@@ -99,7 +99,7 @@ class admin(Plugin):
         return self.bot.disable_plugin(plug_name)
 
     def reset(self, serv, ev, helper, plug_name):
-        return self.bot.reset(plug_name)
+        return self.bot.reset_plugin(plug_name)
 
     def load(self, serv, ev, helper, plug_name, do_after = 'enable'):
         if do_after not in ('enable', 'disable'):

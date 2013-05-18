@@ -247,7 +247,7 @@ class FailBot(ircbot.SingleServerIRCBot):
 
         return True
 
-    def reset(self, plug_name = None):
+    def reset_plugin(self, plug_name = None):
         """
         Reset plugins. Reload plugin module and settings.
         If plug_name is None, all plugins are reloaded
