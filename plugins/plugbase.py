@@ -9,38 +9,57 @@ class Timer(threading.Thread):
     """
     This class represents a timer used in plugins
     """
+    lock = {}
 
-    def __init__(self, owner, name, delay, start=True, loops=1, *args, **kwargs):
+    def __init__(self, name, callback, delay, start=True, loops=None, lock=True, *args, **kwargs):
         """
-        delay in seconds
-        start if the thread is to be started just after its creation
+        callback: callback function
+        delay: in seconds
+        start: if the thread is to be started just after its creation
         loops: how many time do we want to call the on_timeout function.
                None to infinity
+        lock: each timer have an internal lock arround the callback function.
+              set this option to False to disable this lock
         """
         super(Timer, self).__init__(*args, **kwargs)
 
-        self.owner = owner
+        self.callback = callback
         self.delay = float(delay)
         self.name = name
         self.loops = loops
         self.stopevent = threading.Event()
+        Timer.lock[self.callback] = threading.Lock()
+        self.action = None
+        self.lock_enabled = lock
 
         if start:
             self.start()
 
     def run(self):
-        delay = self.delay
-
         while self.loops is None or self.loops > 0:
             if not self.stopevent.wait(self.delay):
-                self.owner.on_timeout(self)
+                if self.lock_enabled:
+                    Timer.lock[self.callback].acquire()
+                self.callback()
+                if self.lock_enabled:
+                    Timer.lock[self.callback].release()
                 if self.loops:
                     self.loops -= 1
-            else:
+            elif self.action == 'stop':
+                self.action = None
+                self.stopevent.clear()
                 break
+            elif self.action == 'reset':
+                self.action = None
+                self.stopevent.clear()
 
     def stop(self):
         self.stopevent.set()
+        self.action = 'stop'
+
+    def reset(self):
+        self.stopevent.set()
+        self.action = 'reset'
 
 
 class Plugin():
@@ -52,6 +71,7 @@ class Plugin():
     settings = {}
     unique = True
     cmd = {}
+    msg_lock = threading.Lock()
 
     def __init__(self, bot, settings={}, unique = True):
         """
@@ -94,36 +114,45 @@ class Plugin():
         """
         pass
 
-    def createTimer(self, name, delay, start=True, loops=1):
+    def create_timer(self, name, *args, **kwargs):
         if name in self.timers:
             raise IndexError('A timer with this name already exists')
-        self.timers[name] = Timer(self, name, delay, start, loops)
+        self.timers[name] = Timer(name, *args, **kwargs)
 
-    def startTimer(self, name=None):
-        if not name:
-            for t in self.timers:
+    def start_timer(self, name=None):
+        if name is None:
+            for t in self.timers.values():
                 t.start()
         else:
             self.timers[name].start()
 
-    def stopTimer(self, name=None):
-        if not name:
-            for t in self.timers:
+    def stop_timer(self, name=None):
+        if name is None:
+            for t in self.timers.values():
                 t.stop()
                 t.join()
         else:
             self.timers[name].stop()
 
-    def resetTimer(self, name=None):
-        if not name:
-            for t in self.timers:
-                t.stop()
-                t.join()
-                t.start()
+    def reset_timer(self, name=None):
+        if name is None:
+            for t in self.timers.values():
+                if t.is_alive():
+                    t.reset()
+                else:
+                    t.start()
         else:
-            self.timers[name].stop()
-            self.timers[name].join()
-            self.timers[name].start()
+            if self.timers[name].is_alive():
+                self.timers[name].reset()
+            else:
+                self.timers[name].stop()
+
+    def kill_timer(self, name=None):
+        self.stop_timer(name)
+        if name is None:
+            self.timers = {}
+        else:
+            del self.timers[name]
 
     def on_join(self, serv, ev):
         """
@@ -174,9 +203,7 @@ class Plugin():
         """
         Define what a plugin may do when the bot shuts down
         """
-        for timer in self.timers.values():
-            timer.stop()
-            timer.join()
+        self.kill_timer()
         self.on_shutdown
 
     def on_shutdown(self):
@@ -203,12 +230,16 @@ class Plugin():
     def respond(self, serv, ev, helper, msg):
         """
         """
+        Plugin.msg_lock.acquire()
         target = helper['chan'] if ev.eventtype() == 'pubmsg' else helper['author']
         serv.privmsg(target, msg)
+        Plugin.msg_lock.release()
 
     def send_to_channels(self, msg):
+        Plugin.msg_lock.acquire()
         for channel in self.bot.channels:
             self.bot.connection.privmsg(channel, msg)
+        Plugin.msg_lock.release()
 
 
 class PluginError(Exception):
