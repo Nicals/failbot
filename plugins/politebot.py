@@ -63,7 +63,7 @@ class politebot(Plugin):
 
         self.compliments.append(sentence)
         with open(self.polite_file, 'a') as f:
-            f.write(sentence)
+            f.write(sentence + '\n')
 
         self.respond(serv, ev, helper,  helper['author'] + ': done')
         return True
